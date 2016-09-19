@@ -1,5 +1,5 @@
 var q = require('q');
-var AuthenticationContext = require('expose?AuthenticationContext!../../node_modules/modular-adal-angular/lib/adal.js');
+var AuthenticationContext = require('expose?AuthenticationContext!adal-angular');
 var adalConfig = require('./adal-config');
 
 var _adal = new AuthenticationContext(adalConfig);
