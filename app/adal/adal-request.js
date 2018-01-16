@@ -10,29 +10,33 @@ var processAdalCallback = function() {
 
   if (_adal.isCallback(hash)) {
     // callback can come from login or iframe request
-    var requestInfo = _adal.getRequestInfo(hash);
-    _adal.saveTokenFromHash(requestInfo);
-    window.location.hash = '';
 
-    if (requestInfo.requestType !== _adal.REQUEST_TYPE.LOGIN) {
-      if (window.parent.AuthenticationContext === 'function' && window.parent.AuthenticationContext()) {
-        _adal.callback = window.parent.AuthenticationContext().callback;
+      if (_adal._openedWindows.length > 0 && _adal._openedWindows[_adal._openedWindows.length - 1].opener
+          && _adal._openedWindows[_adal._openedWindows.length - 1].opener._adalInstance) {
+          _adal = _adal._openedWindows[_adal._openedWindows.length - 1].opener._adalInstance;
       }
-      if (requestInfo.requestType === _adal.REQUEST_TYPE.RENEW_TOKEN) {
-        _adal.callback = window.parent.callBackMappedToRenewStates[requestInfo.stateResponse];
+      else if (window.parent && window.parent._adalInstance) {
+          _adal = window.parent._adalInstance;
       }
-    }
+
+      // callback can come from login or iframe request
+      _adal.verbose('Processing the hash: ' + hash);
+      var requestInfo = _adal.getRequestInfo(hash);
+      _adal.saveTokenFromHash(requestInfo);
+      window.location.hash = '';
+      // Return to callback if it is sent from iframe
+      var callback = _adal._callBackMappedToRenewStates[requestInfo.stateResponse] || _adal.callback;
 
     if (requestInfo.stateMatch) {
-      if (typeof _adal.callback === 'function') {
+      if (callback && typeof callback === 'function') {
         // Call within the same context without full page redirect keeps the callback
         if (requestInfo.requestType === _adal.REQUEST_TYPE.RENEW_TOKEN) {
           // Idtoken or Accestoken can be renewed
           if (requestInfo.parameters['access_token']) {
-            _adal.callback(_adal._getItem(_adal.CONSTANTS.STORAGE.ERROR_DESCRIPTION), requestInfo.parameters['access_token']);
+            callback(_adal._getItem(_adal.CONSTANTS.STORAGE.ERROR_DESCRIPTION), requestInfo.parameters['access_token']);
             return;
           } else if (requestInfo.parameters['id_token']) {
-            _adal.callback(_adal._getItem(_adal.CONSTANTS.STORAGE.ERROR_DESCRIPTION), requestInfo.parameters['id_token']);
+            callback(_adal._getItem(_adal.CONSTANTS.STORAGE.ERROR_DESCRIPTION), requestInfo.parameters['id_token']);
             return;
           }
         }
