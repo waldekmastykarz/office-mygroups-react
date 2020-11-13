@@ -15,7 +15,7 @@ In order to use this application you need the following prerequisites:
 ## Configuration
 
 Following are the steps that you need to complete in order to see this application working:
-- in the old Azure Management Portal (https://manage.windowsazure.com):
+- in the old Azure Management Portal (https://manage.windowsazure.com/?WT.mc_id=m365-0000-wmastyka):
   - go to Azure Active Directory (AAD)
   - create a new AAD web application
   - set the return URL to `https://localhost:8443`
